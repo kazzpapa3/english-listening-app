@@ -1,0 +1,13 @@
+{
+  "name": "english-listening-app-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Batch scripts for the English Listening App (Polly audio generation, etc.)",
+  "scripts": {
+    "generate-audio": "node scripts/generate-audio.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-polly": "^3.678.0"
+  }
+}

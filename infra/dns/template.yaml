@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  English Listening App - DNS stack.
+  Creates a public Route53 hosted zone for the subdomain (listening.example.com)
+  in the application account (<APP_ACCOUNT_ID>). The parent zone (example.com in
+  account <PARENT_ACCOUNT_ID>) must add an NS record delegating this subdomain, using
+  the NameServers output below.
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: listening.example.com
+    Description: Fully qualified subdomain to host.
+
+Resources:
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: !Ref DomainName
+      HostedZoneConfig:
+        Comment: !Sub "Delegated subdomain zone for ${DomainName} (English Listening App)"
+
+Outputs:
+  HostedZoneId:
+    Description: Hosted zone ID for the subdomain. Used by cert and site stacks.
+    Value: !Ref HostedZone
+    Export:
+      Name: listening-app-hosted-zone-id
+  DomainName:
+    Description: The delegated subdomain.
+    Value: !Ref DomainName
+    Export:
+      Name: listening-app-domain-name
+  NameServers:
+    Description: >
+      NS records for the subdomain. Register these as an NS record for
+      "listening" in the parent hosted zone (example.com, account <PARENT_ACCOUNT_ID>).
+    Value: !Join [",", !GetAtt HostedZone.NameServers]

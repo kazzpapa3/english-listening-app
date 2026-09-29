@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  English Listening App - Certificate stack (MUST be deployed in us-east-1).
+  Issues an ACM certificate for the subdomain used by CloudFront, with DNS
+  validation records created in the subdomain hosted zone (created by the dns stack).
+  NOTE: DNS validation only completes AFTER the parent zone delegates the
+  subdomain via NS record. Deploy this stack after delegation is in place.
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: listening.example.com
+    Description: FQDN for the certificate (must match CloudFront alias).
+  HostedZoneId:
+    Type: String
+    Description: >
+      Hosted zone ID of the subdomain zone (NameServers output's zone).
+      Take this from the dns stack's HostedZoneId output.
+
+Resources:
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: Project
+          Value: listening-app
+
+Outputs:
+  CertificateArn:
+    Description: ACM certificate ARN (us-east-1). Pass to the site stack.
+    Value: !Ref Certificate
